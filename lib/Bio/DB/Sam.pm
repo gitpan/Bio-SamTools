@@ -813,7 +813,7 @@ create AlignWrapper objects on an as needed basis:
  my $callback = sub {
     my($seqid,$pos,$pileup,$sam) = @_;
     for my $p (@$pileup) {
-       my $alignment = $p->b;
+       my $alignment = $p->alignment;
        my $wrapper   = Bio::DB::Bam::AlignWrapper->new($alignment,$sam);
        my $has_mate  = $wrapper->get_tag_values('PAIRED');
     }
@@ -1201,7 +1201,7 @@ use Bio::SeqFeature::Lite;
 use Bio::PrimarySeq;
 
 use base 'DynaLoader';
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 bootstrap Bio::DB::Sam;
 
 use Bio::DB::Bam::Alignment;
@@ -1219,12 +1219,14 @@ sub new {
     my $expand_flags  = $args{-expand_flags};
     my $split_splices = $args{-split} || $args{-split_splices};
 
-    -e $bam_path && -r _  or croak "$fa_path does not exist or is not readable";
+    -e $bam_path or croak "$bam_path does not exist";
+    -r _  or croak "is not readable";
     my $bam = Bio::DB::Bam->open($bam_path)      or croak "$bam_path open: $!";
 
     my $fai;
     if ($fa_path) {
-	-e $fa_path  && -r _  or croak "$fa_path does not exist or is not readable";
+	-e $fa_path or croak "$fa_path does not exist";
+	-r _  or croak "$fa_path is not readable";
 	$fai = Bio::DB::Sam::Fai->open($fa_path)  or croak "$fa_path open: $!";
     }
 
@@ -1857,6 +1859,28 @@ sub coverage {
     return wantarray ? @$coverage : $coverage;
 }
 
+sub source {
+    my $self = shift;
+    my $type = $self->type;
+    my ($base,$width) = split ':',$type;
+    return $width;
+}
+
+sub method {
+    my $self = shift;
+    my $type = $self->type;
+    my ($base,$width) = split ':',$type;
+    return $base;
+}
+
+sub gff3_string {
+    my $self = shift;
+    my $gff3 = $self->SUPER::gff3_string;
+    my $coverage = $self->escape(join(',',$self->coverage));
+    $gff3 =~ s/coverage=[^;]+/coverage=$coverage/g;
+    return $gff3;
+}
+
 package Bio::DB::Bam;
 
 sub index {
@@ -1910,13 +1934,13 @@ are an non-reference base.
 	my $refbase = $sam->segment($seqid,$pos,$pos)->dna;
         my ($total,$different);
 	for my $pileup (@$p) {
-	    my $b     = $pileup->b;
+	    my $b     = $pileup->alignment;
             next if $pileup->indel;  # don't deal with these ;-)
 
             my $qbase  = substr($b->qseq,$pileup->qpos,1);
             next if $qbase =~ /[nN]/;
 
-            my $qscore = substr($b->qscore,$pileup->qpos,1);
+            my $qscore = $b->qscore->[$pileup->gpos];
             next unless $qscore > 25;
 
             $total++;
