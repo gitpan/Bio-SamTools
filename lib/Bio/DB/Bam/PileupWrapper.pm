@@ -1,5 +1,5 @@
 package Bio::DB::Bam::PileupWrapper;
-#$Id: PileupWrapper.pm,v 1.2 2009-06-25 16:15:36 lstein Exp $
+#$Id: PileupWrapper.pm 22410 2009-12-15 16:23:24Z lstein $
 
 =head1 NAME
 

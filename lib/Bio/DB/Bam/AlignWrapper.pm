@@ -1,6 +1,6 @@
 package Bio::DB::Bam::AlignWrapper;
 
-# $Id: AlignWrapper.pm,v 1.8 2009-08-19 19:15:04 lstein Exp $
+# $Id: AlignWrapper.pm 22520 2010-01-11 21:52:52Z lstein $
 
 =head1 NAME
 
@@ -128,12 +128,17 @@ sub split_splices {
 									    $start+$skip,
 									    $end-$start),
 							  -type   => $self->type);
+
+	    # in case sequence is missing?
+	    my $qseq = $self->qseq;
+	    $qseq  ||= 'N' x $self->length;
+
 	    $f->hit(-name   => $self->display_name,
 		    -seq_id => $self->display_name,
 		    -start  => $start+1,
 		    -end    => $end,
 		    -strand => $self->strand,
-		    -seq    => substr($self->qseq,$start,$end-$start),
+		    -seq    => substr($qseq,$start,$end-$start),
 		);
 	    $f->cigar_str($partial_cigar);
 	    $partial_cigar = '';

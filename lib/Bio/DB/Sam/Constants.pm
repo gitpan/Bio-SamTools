@@ -1,6 +1,6 @@
 package Bio::DB::Sam::Constants;
 
-# $Id: Constants.pm,v 1.2 2009-06-25 16:15:36 lstein Exp $
+# $Id: Constants.pm 22410 2009-12-15 16:23:24Z lstein $
 
 =head1 NAME
 

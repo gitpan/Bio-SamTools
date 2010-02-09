@@ -1,5 +1,5 @@
 package Bio::DB::Sam;
-# $Id: Sam.pm,v 1.17 2009-09-03 18:40:06 lstein Exp $
+# $Id: Sam.pm 22684 2010-02-09 18:22:23Z lstein $
 
 =head1 NAME
 
@@ -19,14 +19,22 @@ Bio::DB::Sam -- Read SAM/BAM database files
                                                  -start  => 500,
                                                  -end    => 800);
  for my $a (@alignments) {
+
+    # where does the alignment start in the reference sequence
     my $seqid  = $a->seq_id;
     my $start  = $a->start;
     my $end    = $a->end;
     my $strand = $a->strand;
     my $cigar  = $a->cigar_str;
     my $paired = $a->get_tag_values('PAIRED');
-    my $ref_dna   = $a->dna;        # reference sequence
-    my $query_dna = $a->query->dna; # query sequence
+
+    # where does the alignment start in the query sequence
+    my $query_start = $a->query->start;     
+    my $query_end   = $a->query->end;
+
+    my $ref_dna   = $a->dna;        # reference sequence bases
+    my $query_dna = $a->query->dna; # query sequence bases
+
     my @scores    = $a->qscore;     # per-base quality scores
     my $match_qual= $a->qual;       # quality of the match
  }
@@ -56,6 +64,8 @@ Bio::DB::Sam -- Read SAM/BAM database files
  }
 
  my $index = Bio::DB::Bam->index_open('/path/to/bamfile');
+ my $index = Bio::DB::Bam->index_open_in_safewd('/path/to/bamfile');
+
  my $callback = sub {
      my $alignment = shift;
      my $start       = $alignment->start;
@@ -144,7 +154,12 @@ high-level API are as follows:
 
  * Bio::DB::Sam               -- A collection of alignments and reference sequences.
  * Bio::DB::Bam::Alignment    -- The alignment between a query and the reference.
- * Bio::DB::Bam::Query        -- An object corresponding to the query sequence.
+ * Bio::DB::Bam::Query        -- An object corresponding to the query sequence in
+                                  which both (+) and (-) strand alignments are
+                                  shown in the reference (+) strand.
+ * Bio::DB::Bam::Target       -- An interface to the query sequence in which
+                                   (-) strand alignments are shown in reverse
+                                   complement
 
 You may encounter other classes as well. These include:
 
@@ -894,7 +909,7 @@ reference sequence names and lengths.
 
 Given a Bio::DB::Bam::Header object, such as the one created by
 header_read2(), and a Bio::DB::Bam::Alignment object created by
-Bio::DB::Bam::Alignmnt->new(), reads one line of alignment information
+Bio::DB::Bam::Alignment->new(), reads one line of alignment information
 into the alignment object from the TAM file and returns a status
 code. The result code will be the number of bytes read.
 
@@ -918,6 +933,14 @@ operations. If you fork, and intend to use the object in both parent
 and child, you must reopen the Bio::DB::Bam in either the child or the
 parent (but not both) before attempting to call any of the object's
 methods.
+
+The path may be an http: or ftp: URL, in which case a copy of the
+index file will be downloaded to the current working directory (see
+below) and all accesses will be performed on the remote BAM file.
+
+Example:
+
+   $bam = Bio::DB::Bam->open('http://some.site.com/nextgen/chr1_bowtie.bam');
 
 =item $header = $bam->header()
 
@@ -995,6 +1018,15 @@ future may return a negative value to indicate failure.
 Attempt to open the index file for a BAM file, returning a
 Bio::DB::Bam::Index object. The filename path to use is the .bam file,
 not the .bai file.
+
+=item $index = Bio::DB::Bam->index_open_in_safewd('/path/to/file.bam' [,$mode])
+
+When opening a remote BAM file, you may not wish for the index to be
+downloaded to the current working directory. This version of index_open
+copies the index into the directory indicated by the TMPDIR
+environment variable or the system-defined /tmp directory if not
+present. You may change the environment variable just before the call
+to change its behavior.
 
 =item $code = $index->fetch($bam,$tid,$start,$end,$callback [,$callback_data])
 
@@ -1221,7 +1253,7 @@ use Bio::SeqFeature::Lite;
 use Bio::PrimarySeq;
 
 use base 'DynaLoader';
-our $VERSION = '1.09';
+our $VERSION = '1.10';
 bootstrap Bio::DB::Sam;
 
 use Bio::DB::Bam::Alignment;
@@ -1526,7 +1558,7 @@ sub features {
     my $self = shift;
 
     my %args;
-    if ($_[0] !~ /^-/) {
+    if (defined $_[0] && $_[0] !~ /^-/) {
 	$args{-type} = \@_;
     } else {
 	%args = @_;
@@ -1922,11 +1954,14 @@ sub gff3_string {
 
 package Bio::DB::Bam;
 
+use File::Spec;
+use Cwd;
+
 sub index {
     my $self = shift;
     my $path = shift;
 
-    return $self->index_open($path) if Bio::DB::Sam->is_remote($path);
+    return $self->index_open_in_safewd($path) if Bio::DB::Sam->is_remote($path);
 
     unless (-e "${path}.bai" && (-M $path >= -M "${path}.bai")) {
 	# if bam file is not sorted, then index_build will exit.
@@ -1958,6 +1993,19 @@ sub index {
     return $self->index_open($path);
 }
 
+# same as index_open(), but changes current wd to TMPDIR to accomodate
+# the C library when it tries to download the index file from remote
+# locations.
+sub index_open_in_safewd {
+    my $self = shift;
+    my $dir    = getcwd;
+    my $tmpdir = File::Spec->tmpdir;
+    chdir($tmpdir);
+    my $result = $self->index_open(@_);
+    chdir $dir;
+    $result;
+}
+
 
 1;
 __END__
@@ -1982,7 +2030,7 @@ are a non-reference base.
             my $qbase  = substr($b->qseq,$pileup->qpos,1);
             next if $qbase =~ /[nN]/;
 
-            my $qscore = $b->qscore->[$pileup->gpos];
+            my $qscore = $b->qscore->[$pileup->qpos];
             next unless $qscore > 25;
 
             $total++;
