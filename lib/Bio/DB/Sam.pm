@@ -1,5 +1,5 @@
 package Bio::DB::Sam;
-# $Id: Sam.pm 22684 2010-02-09 18:22:23Z lstein $
+# $Id: Sam.pm 22740 2010-02-25 21:49:41Z lstein $
 
 =head1 NAME
 
@@ -1253,7 +1253,7 @@ use Bio::SeqFeature::Lite;
 use Bio::PrimarySeq;
 
 use base 'DynaLoader';
-our $VERSION = '1.10';
+our $VERSION = '1.11';
 bootstrap Bio::DB::Sam;
 
 use Bio::DB::Bam::Alignment;
@@ -1317,6 +1317,16 @@ sub header {
 }
 
 sub fai { shift->{fai} }
+
+sub seq {
+    my $self = shift;
+    my ($seqid,$start,$end) = @_;
+    my $region = $seqid;
+    $region   .= ":$start" if defined $start;
+    $region   .= "-$end"   if defined $end;
+    my $fai = $self->fai;
+    return $fai ? $fai->fetch($region) : 'N' x ($end-$start+1);
+}
 
 sub expand_flags {
     my $self = shift;
