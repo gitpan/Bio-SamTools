@@ -1,6 +1,6 @@
 package Bio::DB::Bam::Alignment;
 
-# $Id: Alignment.pm 22740 2010-02-25 21:49:41Z lstein $
+# $Id: Alignment.pm 22778 2010-03-09 15:32:38Z lstein $
 
 =head1 NAME
 
@@ -521,38 +521,6 @@ sub cigar_array {
     }
     return \@result;
 
-}
-
-sub padded_alignment {
-    my $self  = shift;
-
-    my $cigar = $self->cigar_array;
-
-    my $sdna  = $self->dna;
-    my $tdna  = $self->hit->dna;
-
-    my ($pad_source,$pad_target,$pad_match);
-    for my $event (@$cigar) {
-	my ($op,$count) = @$event;
-	if ($op eq 'I' || $op eq 'S') {
-	    $pad_source .= '-' x $count;
-	    $pad_target .= substr($tdna,0,$count,'');
-	    $pad_match  .= ' ' x $count;
-	}
-	elsif ($op eq 'D' || $op eq 'N' || $op eq 'P') {
-	    $pad_source .= substr($tdna,0,$count,'');
-	    $pad_target .= '-' x $count;
-	    $pad_match  .= ' ' x $count;
-	}
-	elsif ($op eq 'H') {
-	    # nothing needs to be done in this case
-	} else {  # everything else is assumed to be a match -- revisit
-	    $pad_source .= substr($sdna,0,$count,'');
-	    $pad_target .= substr($tdna,0,$count,'');
-	    $pad_match  .= '|' x $count;
-	}
-    }
-    return ($pad_source,$pad_match,$pad_target);
 }
 
 sub flag_str {
