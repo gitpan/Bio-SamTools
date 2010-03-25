@@ -1,6 +1,6 @@
 package Bio::DB::Bam::AlignWrapper;
 
-# $Id: AlignWrapper.pm 22778 2010-03-09 15:32:38Z lstein $
+# $Id: AlignWrapper.pm 22894 2010-03-25 14:06:52Z lstein $
 
 =head1 NAME
 
@@ -211,7 +211,7 @@ sub padded_alignment {
 	    $pad_match  .= ' ' x $count;
 	}
 	elsif ($op eq 'D' || $op eq 'N' || $op eq 'P') {
-	    $pad_source .= substr($tdna,0,$count,'');
+	    $pad_source .= substr($sdna,0,$count,'');
 	    $pad_target .= '-' x $count;
 	    $pad_match  .= ' ' x $count;
 	}
@@ -228,9 +228,7 @@ sub padded_alignment {
 
 sub dna {
     my $self = shift;
-    my $region = $self->seq_id.':'.$self->start.'-'.$self->end;
-    my $fai = $self->{sam}->fai;
-    return $fai ? $self->{sam}->fai->fetch($region) : 'N' x $self->length;
+    return $self->{sam}->seq($self->seq_id,$self->start,$self->end);
 }
 
 sub tseq {
