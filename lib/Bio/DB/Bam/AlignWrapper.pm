@@ -1,6 +1,6 @@
 package Bio::DB::Bam::AlignWrapper;
 
-# $Id: AlignWrapper.pm 22894 2010-03-25 14:06:52Z lstein $
+# $Id: AlignWrapper.pm 23058 2010-04-18 21:29:29Z lstein $
 
 =head1 NAME
 
@@ -124,9 +124,10 @@ sub split_splices {
 							  -end    => $e,
 							  -seq_id => $self->seq_id,
 							  -strand => +1,
-							  -seq    => substr($self->dna,
-									    $start+$skip,
-									    $end-$start),
+							  -seq    => [$self,$start+$skip,$end-$start], # deferred rendering
+#							  -seq    => substr($self->dna,
+#									    $start+$skip,
+#									    $end-$start),
 							  -type   => $self->type);
 
 	    # in case sequence is missing?
@@ -210,9 +211,14 @@ sub padded_alignment {
 	    $pad_target .= substr($tdna,0,$count,'');
 	    $pad_match  .= ' ' x $count;
 	}
-	elsif ($op eq 'D' || $op eq 'N' || $op eq 'P') {
+	elsif ($op eq 'D' || $op eq 'N') {
 	    $pad_source .= substr($sdna,0,$count,'');
 	    $pad_target .= '-' x $count;
+	    $pad_match  .= ' ' x $count;
+	}
+	elsif ($op eq 'P') {
+	    $pad_source .= '*' x $count;
+	    $pad_target .= '*' x $count;
 	    $pad_match  .= ' ' x $count;
 	}
 	elsif ($op eq 'H') {
@@ -228,7 +234,29 @@ sub padded_alignment {
 
 sub dna {
     my $self = shift;
-    return $self->{sam}->seq($self->seq_id,$self->start,$self->end);
+    my $sam  = $self->{sam};
+    if (my $md   = $self->get_tag_values('MD')) {  # try to use MD string
+	warn $md;
+	my $qseq = $self->qseq;
+	my $start = 0;
+	my $result;
+	while ($md =~ /(\d+)|\^([gatcn]+)|([gatcn]+)/ig) {
+	    if ($1) {
+		$result .= substr($qseq,$start,$1);
+		$start  += $1;
+	    } elsif ($2) {
+		$result .= $2;
+	    } elsif ($3) {
+		$result .= $3;
+		$start  += length $3;
+	    }
+	}
+	return $result;
+    }
+
+    else {
+	return $self->{sam}->seq($self->seq_id,$self->start,$self->end);
+    }
 }
 
 sub tseq {
@@ -348,6 +376,13 @@ sub hit {
     my $d    = $self->{hit};
     $self->{hit} = Bio::SeqFeature::Lite->new(@_) if @_;
     return $d;
+}
+
+sub seq {
+    my $self = shift;
+    my $seq  = $self->{seq};
+    return $self->SUPER::seq() unless ref $seq;
+    return substr($seq->[0]->dna,$seq->[1],$seq->[2]);
 }
 
 sub Bio::SeqFeature::Lite::subseq {

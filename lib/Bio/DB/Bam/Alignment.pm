@@ -1,6 +1,6 @@
 package Bio::DB::Bam::Alignment;
 
-# $Id: Alignment.pm 22778 2010-03-09 15:32:38Z lstein $
+# $Id: Alignment.pm 22988 2010-04-02 17:17:34Z lstein $
 
 =head1 NAME
 
@@ -96,7 +96,10 @@ format -1 or +1.
 
 =item $ref_dna        = $align->dna
 
-Returns the B<reference> sequence's DNA across the aligned regin.
+Returns the B<reference> sequence's DNA across the aligned region. If
+an MD tag is present in the alignment, it will be used preferentially
+to reconstruct the reference sequence. Otherwise the reference DNA
+access object passed to Bio::DB::Sam->new() will be used.
 
 =item $ref_dna        = $align->seq
 
