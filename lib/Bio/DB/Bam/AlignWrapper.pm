@@ -1,6 +1,6 @@
 package Bio::DB::Bam::AlignWrapper;
 
-# $Id: AlignWrapper.pm 23137 2010-05-05 17:56:28Z lstein $
+# $Id: AlignWrapper.pm 23217 2010-05-17 04:52:38Z lstein $
 
 =head1 NAME
 
@@ -162,6 +162,13 @@ sub expand_flags {
 sub seq_id {
     my $self = shift;
     my $tid  = $self->tid;
+    $self->{sam}->target_name($tid);
+}
+
+sub mate_seq_id {
+    my $self = shift;
+    my $tid  = $self->mtid;
+    return unless $tid >= 0;
     $self->{sam}->target_name($tid);
 }
 
@@ -379,6 +386,23 @@ sub format_attributes {
   return join ';',@result;
 }
 
+sub tam_line {
+    my $self = shift;
+    return join ("\t",
+		 $self->qname,
+		 $self->flag,
+		 $self->seq_id,
+		 $self->pos+1,
+		 $self->qual,
+		 $self->cigar_str,
+		 $self->mate_seq_id ? ($self->mate_seq_id eq $self->seq_id ? '=' : $self->mate_seq_id) : '*',
+		 $self->mpos || 0,
+		 $self->isize,
+		 $self->qseq,
+		 join('',map{chr($_+33)} $self->qscore),
+		 $self->aux
+	);
+}
 
 package Bio::DB::Bam::SplitAlignmentPart;
 
@@ -415,7 +439,5 @@ sub cigar_str {
     $self->{cigar_str} = shift if @_;
     $d;
 }
-
-
 
 1;

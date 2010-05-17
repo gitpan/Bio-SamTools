@@ -522,6 +522,8 @@ PROTOTYPE: $;$
 CODE:
     if (items > 1)
       b->core.mpos = SvIV(ST(1));
+    if (b->core.pos <= 0)
+      XSRETURN_UNDEF;
     RETVAL=b->core.mpos;
 OUTPUT:
     RETVAL
@@ -547,6 +549,54 @@ CODE:
     RETVAL=b->l_aux;
 OUTPUT:
     RETVAL
+
+char*
+bama_aux(b)
+   Bio::DB::Bam::Alignment b
+PREINIT:
+   uint8_t *s;
+   uint8_t type, key[2];
+   char    str[8192];
+CODE:
+   s = bam1_aux(b);
+   str[0] = '\0';
+
+   int left  = sizeof(str) - strlen(str);
+   while (left > 0 && (s < b->data + b->data_len)) {
+        char* d   = str+strlen(str); 
+
+	key[0] = s[0]; 
+	key[1] = s[1];
+ 	left -= snprintf(d, left, "%c%c:", key[0], key[1]);
+
+	d    += 3;
+	s    += 2;
+	type = *s++; 
+
+	if (left <= 0) continue;
+
+	if (type == 'A')      { left -= snprintf(d, left, "A:%c", *s);           s++; }
+	else if (type == 'C') { left -= snprintf(d, left, "i:%u", *s);           s++; }
+	else if (type == 'c') { left -= snprintf(d, left, "i:%d", *s);           s++; }
+	else if (type == 'S') { left -= snprintf(d, left, "i:%u", *(uint16_t*)s);s += 2; }
+	else if (type == 's') { left -= snprintf(d, left, "i:%d", *(int16_t*)s); s += 2; }
+	else if (type == 'I') { left -= snprintf(d, left, "i:%u", *(uint32_t*)s);s += 4; }
+	else if (type == 'i') { left -= snprintf(d, left, "i:%d", *(int32_t*)s); s += 4; }
+	else if (type == 'f') { left -= snprintf(d, left, "f:%g", *(float*)s);   s += 4; }
+	else if (type == 'd') { left -= snprintf(d, left, "d:%lg", *(double*)s); s += 8; }
+	else if (type == 'Z' || type == 'H') { left -= snprintf(d, left, "%c:", type); 
+	                                       strncat(d,s,left);
+					       while (*s++) {}
+					       left = sizeof(str) - strlen(str);
+	                                     }
+	if (left <= 0) continue;
+	strncat(d,"\t",left);
+	left--;
+   }	  
+   str[strlen(str)-1] = '\0';
+   RETVAL = str;
+OUTPUT:
+   RETVAL
 
 SV*
 bama_aux_get(b,tag)
@@ -602,7 +652,7 @@ Bio::DB::Bam::Alignment b
 PROTOTYPE: $
 PREINIT:
    uint8_t *s;
-   uint8_t type, key[2];
+   uint8_t type;
 PPCODE:
    {
      s = bam1_aux(b);  /* s is a khash macro */
