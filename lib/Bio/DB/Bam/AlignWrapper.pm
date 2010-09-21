@@ -1,6 +1,6 @@
 package Bio::DB::Bam::AlignWrapper;
 
-# $Id: AlignWrapper.pm 23217 2010-05-17 04:52:38Z lstein $
+# $Id: AlignWrapper.pm 23837 2010-09-21 18:38:48Z lstein $
 
 =head1 NAME
 
@@ -87,7 +87,7 @@ sub score {shift->{align}->qual}
 sub can {
     my $self = shift;
     return 1 if $self->SUPER::can(@_);
-    return $self->{align}->can(@_);
+    return ref $self && $self->{align}->can(@_);
 }
 
 sub add_segment {
