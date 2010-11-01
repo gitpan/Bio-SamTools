@@ -1,6 +1,6 @@
 package Bio::DB::Bam::AlignWrapper;
 
-# $Id: AlignWrapper.pm 23837 2010-09-21 18:38:48Z lstein $
+# $Id: AlignWrapper.pm 23933 2010-10-08 14:11:40Z malcook $
 
 =head1 NAME
 
@@ -150,7 +150,7 @@ sub split_splices {
 	    $partial_cigar .= "$operation$count";
 	}
 	$end  += $count if $operation =~ /^[MDSHP]/i;
-	$skip  = $count if $operation eq 'N';
+	$skip += $count if $operation eq 'N';
     }
     return @results;
 }

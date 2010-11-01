@@ -1,7 +1,7 @@
 package Bio::DB::Sam;
-# $Id: Sam.pm 23838 2010-09-21 18:39:06Z lstein $
+# $Id: Sam.pm 24070 2010-11-01 15:48:38Z lstein $
 
-our $VERSION = '1.21';
+our $VERSION = '1.22';
 
 =head1 NAME
 
@@ -1638,6 +1638,7 @@ sub get_features_by_name { shift->get_feature_by_name(@_) }
 sub get_feature_by_id {
     my $self = shift;
     my $id   = shift;
+    warn "get feature by id $id";
     my ($name,$tid,$start,$end,$strand) = map {s/%3B/;/ig;$_} split ';',$id;
     return unless $name && defined $tid;
     my $seqid = $self->target_name($tid);
