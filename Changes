@@ -1,3 +1,16 @@
+Version 1.27
+   *Support for SAM/BAM files in which the sequence is given as "*".
+   This will return a completely ambiguous read (NNNNNNNN) of the proper length.
+   *SamToGBrowse functions will now work properly under a fastCGI environment.
+
+Version 1.26
+   * Added support for samtools >= 0.1.9 is_refskip field in pileups.
+
+Version 1.25
+   * Removed debugging warning in get_feature_by_id().
+   * Identify version-specific samtools installs where the prefix is xyz and the
+     include/lib files are in xyz/include and xyz/lib (Contributed by John Marshall).
+
 Version 1.24
    * More revisions needed to run tests succssfully. Sorry!
 

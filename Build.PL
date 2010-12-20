@@ -47,8 +47,12 @@ sub find_sam {
     if (my $samtools = $ENV{SAMTOOLS}) {
 	$sam_include = $samtools
 	    if -e "$samtools/$HeaderFile";
+	$sam_include = "$samtools/include"
+	    if -e "$samtools/include/$HeaderFile";
 	$sam_lib     = $samtools
 	    if -e "$samtools/$LibFile";
+	$sam_lib     = "$samtools/lib"
+	    if -e "$samtools/lib/$LibFile";
     }
 
     my @search_path = qw(/ /usr /usr/share /usr/local);
@@ -69,7 +73,7 @@ sub find_sam {
 
 
     unless ($sam_include && $sam_lib) {
-	print STDOUT "This module requires samtools 0.1.4 or higher (samtools.sourceforge.net).\n";
+	print STDOUT "This module requires samtools 0.1.9 or higher (samtools.sourceforge.net).\n";
 	my $prompt = "Please enter the location of the bam.h and compiled libbam.a files: ";
 	my $found;
 	while (!$found) {
@@ -78,8 +82,12 @@ sub find_sam {
 	    last unless $path;
 	    $sam_include = $path
 		if -e "$path/$HeaderFile";
+	    $sam_include = "$path/include"
+		if -e "$path/include/$HeaderFile";
 	    $sam_lib = $path
 		if -e "$path/$LibFile";
+	    $sam_lib = "$path/lib"
+		if -e "$path/lib/$LibFile";
 	    $found = $sam_include && $sam_lib;
 	    unless ($found) {
 		print STDOUT "That didn't seem to be right.\n";

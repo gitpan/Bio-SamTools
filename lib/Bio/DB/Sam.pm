@@ -1,7 +1,7 @@
 package Bio::DB::Sam;
-# $Id: Sam.pm 24073 2010-11-01 19:48:14Z lstein $
+# $Id: Sam.pm 24304 2010-12-20 20:32:12Z lstein $
 
-our $VERSION = '1.24';
+our $VERSION = '1.27';
 
 =head1 NAME
 
@@ -861,6 +861,8 @@ methods:
 
  $pileup->is_del True if the base on the padded read is a deletion.
 
+ $pileup->is_refskip True if the base on the padded read is a gap relative to the reference (denoted as < or > in the pileup)
+
  $pileup->is_head Undocumented field in the bam.h header file.
 
  $pileup->is_tail Undocumented field in the bam.h header file.
@@ -1297,6 +1299,10 @@ insertion (relative to the reference), negative for a deletion
 
 True if the base on the padded read is a deletion.
 
+=item $flag = $pileup->is_refskip
+
+True if the base on the padded read is a gap relative to the reference (denoted as < or > in the pileup)
+
 =item $flag = $pileup->is_head
 
 =item $flag = $pileup->is_del
@@ -1638,7 +1644,6 @@ sub get_features_by_name { shift->get_feature_by_name(@_) }
 sub get_feature_by_id {
     my $self = shift;
     my $id   = shift;
-    warn "get feature by id $id";
     my ($name,$tid,$start,$end,$strand) = map {s/%3B/;/ig;$_} split ';',$id;
     return unless $name && defined $tid;
     my $seqid = $self->target_name($tid);
@@ -2163,7 +2168,7 @@ are a non-reference base.
         my ($total,$different);
 	for my $pileup (@$p) {
 	    my $b     = $pileup->alignment;
-            next if $pileup->indel;  # don't deal with these ;-)
+            next if $pileup->indel or $pileup->is_refskip;      # don't deal with these ;-)
 
             my $qbase  = substr($b->qseq,$pileup->qpos,1);
             next if $qbase =~ /[nN]/;

@@ -1,6 +1,6 @@
 package Bio::DB::Bam::Query;
 
-# $Id: Query.pm 22675 2010-02-08 21:57:02Z lstein $
+# $Id: Query.pm 24242 2010-11-25 21:27:03Z lstein $
 
 =head1 NAME
 
@@ -187,7 +187,7 @@ The DNA string in reference sequence orientation.
 
 sub dna {
     my $self = shift;
-    return $$self->qseq;
+    return $$self->qseq || ('N' x $self->length);
 }
 
 =item $strand = $query->strand
