@@ -1,7 +1,7 @@
 package Bio::DB::Sam;
-# $Id: Sam.pm 24304 2010-12-20 20:32:12Z lstein $
+# $Id: Sam.pm 25037 2011-06-15 11:36:46Z lstein $
 
-our $VERSION = '1.28';
+our $VERSION = '1.29';
 
 =head1 NAME
 
