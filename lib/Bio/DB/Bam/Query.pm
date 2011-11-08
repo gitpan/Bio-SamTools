@@ -1,6 +1,6 @@
 package Bio::DB::Bam::Query;
 
-# $Id: Query.pm 24242 2010-11-25 21:27:03Z lstein $
+# $Id$
 
 =head1 NAME
 

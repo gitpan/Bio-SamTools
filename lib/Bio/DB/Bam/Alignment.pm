@@ -1,6 +1,6 @@
 package Bio::DB::Bam::Alignment;
 
-# $Id: Alignment.pm 23212 2010-05-14 20:56:24Z lstein $
+# $Id$
 
 =head1 NAME
 
