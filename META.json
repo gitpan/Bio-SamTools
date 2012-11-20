@@ -74,7 +74,7 @@
       },
       "Bio::DB::Sam" : {
          "file" : "lib/Bio/DB/Sam.pm",
-         "version" : "1.36"
+         "version" : "1.37"
       },
       "Bio::DB::Sam::Constants" : {
          "file" : "lib/Bio/DB/Sam/Constants.pm",
@@ -107,5 +107,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "1.36"
+   "version" : "1.37"
 }
