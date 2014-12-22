@@ -4,7 +4,7 @@
       "Lincoln Stein <lincoln.stein@gmail.com>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.110440",
+   "generated_by" : "Module::Build version 0.421",
    "license" : [
       "perl_5"
    ],
@@ -16,12 +16,12 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "ExtUtils::CBuilder" : 0
+            "ExtUtils::CBuilder" : "0"
          }
       },
       "configure" : {
          "requires" : {
-            "Module::Build" : "0.38"
+            "Module::Build" : "0.42"
          }
       },
       "runtime" : {
@@ -33,72 +33,56 @@
    },
    "provides" : {
       "Bio::DB::Bam" : {
-         "file" : "lib/Bio/DB/Sam.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Sam.pm"
       },
       "Bio::DB::Bam::AlignWrapper" : {
-         "file" : "lib/Bio/DB/Bam/AlignWrapper.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Bam/AlignWrapper.pm"
       },
       "Bio::DB::Bam::Alignment" : {
-         "file" : "lib/Bio/DB/Bam/Alignment.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Bam/Alignment.pm"
       },
       "Bio::DB::Bam::FetchIterator" : {
-         "file" : "lib/Bio/DB/Bam/FetchIterator.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Bam/FetchIterator.pm"
       },
       "Bio::DB::Bam::Pileup" : {
-         "file" : "lib/Bio/DB/Bam/Pileup.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Bam/Pileup.pm"
       },
       "Bio::DB::Bam::PileupWrapper" : {
-         "file" : "lib/Bio/DB/Bam/PileupWrapper.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Bam/PileupWrapper.pm"
       },
       "Bio::DB::Bam::Query" : {
-         "file" : "lib/Bio/DB/Bam/Query.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Bam/Query.pm"
       },
       "Bio::DB::Bam::ReadIterator" : {
-         "file" : "lib/Bio/DB/Bam/ReadIterator.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Bam/ReadIterator.pm"
       },
       "Bio::DB::Bam::SplitAlignmentPart" : {
-         "file" : "lib/Bio/DB/Bam/AlignWrapper.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Bam/AlignWrapper.pm"
       },
       "Bio::DB::Bam::Target" : {
-         "file" : "lib/Bio/DB/Bam/Target.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Bam/Target.pm"
       },
       "Bio::DB::Sam" : {
          "file" : "lib/Bio/DB/Sam.pm",
-         "version" : "1.39"
+         "version" : "1.41"
       },
       "Bio::DB::Sam::Constants" : {
-         "file" : "lib/Bio/DB/Sam/Constants.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Sam/Constants.pm"
       },
       "Bio::DB::Sam::Fai" : {
-         "file" : "lib/Bio/DB/Sam.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Sam.pm"
       },
       "Bio::DB::Sam::SamToGBrowse" : {
-         "file" : "lib/Bio/DB/Sam/SamToGBrowse.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Sam/SamToGBrowse.pm"
       },
       "Bio::DB::Sam::Segment" : {
-         "file" : "lib/Bio/DB/Sam/Segment.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Sam/Segment.pm"
       },
       "Bio::DB::Sam::Segment::Iterator" : {
-         "file" : "lib/Bio/DB/Sam/Segment.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Sam/Segment.pm"
       },
       "Bio::SeqFeature::Coverage" : {
-         "file" : "lib/Bio/DB/Sam.pm",
-         "version" : 0
+         "file" : "lib/Bio/DB/Sam.pm"
       }
    },
    "release_status" : "stable",
@@ -107,5 +91,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "1.39"
+   "version" : "1.41"
 }

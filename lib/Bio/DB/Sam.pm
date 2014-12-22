@@ -1,6 +1,6 @@
 package Bio::DB::Sam;
 
-our $VERSION = '1.39';
+our $VERSION = '1.41';
 
 =head1 NAME
 
@@ -255,6 +255,13 @@ follows:
 
   -split          The same as -split_splices.
 
+  -force_refseq   Always use the reference sequence file to derive the
+                   reference sequence, even when the sequence can be
+                   derived from the MD tag. This is slower, but safer
+                   when working with BAM files derived from buggy aligners
+                   or when the reference contains non-canonical (modified)
+                   bases.
+
   -autoindex      Create a BAM index file if one does not exist
                    or the current one has a modification date
                    earlier than the BAM file.
@@ -318,6 +325,11 @@ B<subsequently.>
 
 Return the Bio::DB::Bam::Header object associated with the BAM
 file. You can manipulate the header using the low-level API.
+
+=item $bam_path = $sam->bam_path
+
+Return the path of the bam file used to create the sam object. This 
+makes the sam object more portable.
 
 =item $bam    = $sam->bam
 
@@ -1377,6 +1389,7 @@ sub new {
     my $expand_flags  = $args{-expand_flags};
     my $split_splices = $args{-split} || $args{-split_splices};
     my $autoindex     = $args{-autoindex};
+    my $force_refseq  = $args{-force_refseq};
 
     # file existence checks
     unless ($class->is_remote($bam_path)) {
@@ -1396,6 +1409,7 @@ sub new {
 	expand_flags  => $expand_flags,
 	split_splices => $split_splices,
 	autoindex     => $autoindex,
+	force_refseq  => $force_refseq,
     },ref $class || $class;
     $self->header;  # catch it
 
@@ -1419,6 +1433,11 @@ sub clone {
 sub header {
     my $self = shift;
     return $self->{header} ||= $self->{bam}->header;
+}
+
+sub bam_path {
+    my $self = shift;
+    return $self->{bam_path};
 }
 
 sub fai { shift->{fai} }
@@ -1479,6 +1498,13 @@ sub autoindex {
     my $self = shift;
     my $d    = $self->{autoindex};
     $self->{autoindex} = shift if @_;
+    $d;
+}
+
+sub force_refseq {
+    my $self = shift;
+    my $d    = $self->{force_refseq};
+    $self->{force_refseq} = shift if @_;
     $d;
 }
 

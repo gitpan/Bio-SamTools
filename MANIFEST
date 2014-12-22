@@ -6,6 +6,7 @@ c_bin/bam2bedgraph.c
 c_bin/makefile
 Changes
 DISCLAIMER
+INSTALL.pl
 lib/Bio/DB/Bam/Alignment.pm
 lib/Bio/DB/Bam/AlignWrapper.pm
 lib/Bio/DB/Bam/FetchIterator.pm

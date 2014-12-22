@@ -2,6 +2,7 @@
 
 use strict;
 use Module::Build;
+use Module::Load::Conditional qw(can_load);
 
 my $HeaderFile = "bam.h";
 my $LibFile    = "libbam.a";
@@ -46,7 +47,7 @@ my $build = $class->new(
 	'-D_IOLIB=2','-D_FILE_OFFSET_BITS=64', 
 
 	# turn off warnings originating in Perl's Newx* calls
-	'-Wformat=0'
+	'-Wformat=0',
     ],
 
     c_source    => 'c_bin',
@@ -70,7 +71,7 @@ exit 0;
 sub find_sam {
     my ($sam_include,$sam_lib);
 
-    if (my $samtools = $ENV{SAMTOOLS}) {
+    if (my $samtools = _samtools()) {
 	$sam_include = $samtools
 	    if -e "$samtools/$HeaderFile";
 	$sam_include = "$samtools/include"
@@ -160,4 +161,10 @@ sub prompt {
     $in=~ s/\s+//;
     $ReadLine->addhistory($in) if $in =~ /\S/;
     return $in;
+}
+
+sub _samtools {
+    $ENV{SAMTOOLS} ||
+    ( can_load(modules => {'Alien::SamTools' => undef, 'File::ShareDir' => undef}) &&
+      File::ShareDir::dist_dir('Alien-SamTools'));
 }
